@@ -85,7 +85,9 @@ body,
     column-count: 3;
   }
 }
-
+.gallery-container {
+  overflow-anchor: none; /* Важно для плавного скролла */
+}
 @media (min-width: 1024px) {
   .masonry {
     column-count: 4;

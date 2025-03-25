@@ -1,14 +1,18 @@
-// hooks/use-gallery-store.ts
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { fetchFilterData } from "@/api/filters.service";
 
 interface GalleryFiltersState {
   search: string;
-  category: string; // 'all', 'painting', 'sculpture', 'photography'
+  category: string;
   sortOrder: "price-asc" | "price-desc" | "year" | null;
-  likedItems: number[]; // Для избранного
+  collections: string[];
+  users: string[];
+  categories: string[];
+  isLoading: boolean;
+  error: string | null;
   setFilters: (filters: Partial<GalleryFiltersState>) => void;
-  toggleLike: (id: number) => void;
+  loadFilters: () => Promise<void>;
 }
 
 export const useGalleryStore = create<GalleryFiltersState>()(
@@ -16,13 +20,31 @@ export const useGalleryStore = create<GalleryFiltersState>()(
     search: "",
     category: "all",
     sortOrder: null,
-    likedItems: [],
+    collections: [],
+    users: [],
+    categories: [],
+    isLoading: false,
+    error: null,
     setFilters: (filters) => set((state) => Object.assign(state, filters)),
-    toggleLike: (id) =>
-      set((state) => {
-        state.likedItems.includes(id)
-          ? (state.likedItems = state.likedItems.filter(item => item !== id))
-          : state.likedItems.push(id);
-      }),
+    loadFilters: async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const filters = await fetchFilterData();
+        set((state) => {
+          state.collections = filters.collections || [];
+          state.users = filters.users || [];
+          state.categories = filters.categories || [];
+          state.isLoading = false;
+        });
+      } catch (error) {
+        set({ 
+          error: "Failed to load filters", 
+          isLoading: false,
+          collections: ["Default Collection"],
+          users: ["Default Artist"],
+          categories: ["Default Category"]
+        });
+      }
+    },
   }))
 );

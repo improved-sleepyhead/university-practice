@@ -41,3 +41,4 @@ export const fetchArtworks = async (
     return [];
   }
 };
+

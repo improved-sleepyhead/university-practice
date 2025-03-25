@@ -1,11 +1,10 @@
-
 export interface Artwork {
-    id: string; // Измените на string для совместимости с Unsplash
-    artist: string;
-    title: string;
-    year: string;
-    gallery: string;
-    price: number; // Храним как число, форматируем при отображении
-    imageUrl: string;
-    category?: string; // Опциональное поле
-  }
+  id: string;
+  title: string;
+  artist: string;
+  year: string;
+  imageUrl: string;
+  gallery: string;
+  price: number; // 🔥 Исправлено, теперь это `number`
+  category: string;
+}

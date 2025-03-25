@@ -1,43 +1,36 @@
-// hooks/use-gallery-filters-with-url.ts
+"use client";
+
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { useStorage } from "./use-storage";
 import { useGalleryStore } from "./use-store-filters";
 
 export const useGalleryFiltersWithUrl = () => {
   const searchParams = useSearchParams();
-  const { search, category, sortOrder, setFilters } = useGalleryStore();
-  const [savedFilters, saveFilters] = useStorage("gallery-filters", { 
-    search, 
-    category, 
-    sortOrder 
-  });
+  const pathname = usePathname();
+  const router = useRouter();
+  const { search, category, setFilters } = useGalleryStore();
+  const [savedFilters, saveFilters] = useStorage("gallery-filters", { search, category });
 
+  // Загружаем фильтры из URL при монтировании
   useEffect(() => {
     setFilters({
-      search: searchParams.get("search") || "",
-      category: searchParams.get("category") || "all",
-      sortOrder: searchParams.get("sortOrder") as "price-asc" | "price-desc" | "year" | null || null,
+      search: searchParams.get("search") || savedFilters.search || "",
+      category: searchParams.get("category") || savedFilters.category || "all",
     });
-  }, [searchParams]);
-
-  useEffect(() => {
-    saveFilters({ search, category, sortOrder });
-  }, [search, category, sortOrder, saveFilters]);
-
-  useEffect(() => {
-    const updateUrl = () => {
-      const { search, category, sortOrder } = useGalleryStore.getState();
-      const params = new URLSearchParams();
-
-      if (search) params.set("search", search);
-      if (category !== "all") params.set("category", category);
-      if (sortOrder) params.set("sortOrder", sortOrder);
-
-      window.history.replaceState({}, "", `?${params.toString()}`);
-    };
-
-    const unsubscribe = useGalleryStore.subscribe(updateUrl);
-    return unsubscribe;
   }, []);
+
+  // Сохраняем фильтры в localStorage
+  useEffect(() => {
+    saveFilters({ search, category });
+  }, [search, category]);
+
+  // Обновляем URL при изменении фильтров
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (category !== "all") params.set("category", category);
+
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [search, category]);
 };
