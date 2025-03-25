@@ -1,40 +1,43 @@
+// hooks/use-gallery-filters-with-url.ts
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useFiltersStore } from "./use-store-filters";
 import { useStorage } from "./use-storage";
+import { useGalleryStore } from "./use-store-filters";
 
-export const useFiltersWithUrl = () => {
+export const useGalleryFiltersWithUrl = () => {
   const searchParams = useSearchParams();
-  const { search, category, minPrice, maxPrice, setFilters } = useFiltersStore();
-  const [savedFilters, saveFilters] = useStorage("filters", { search, category, minPrice, maxPrice });
+  const { search, category, sortOrder, setFilters } = useGalleryStore();
+  const [savedFilters, saveFilters] = useStorage("gallery-filters", { 
+    search, 
+    category, 
+    sortOrder 
+  });
 
   useEffect(() => {
     setFilters({
       search: searchParams.get("search") || "",
       category: searchParams.get("category") || "all",
-      minPrice: searchParams.get("minPrice") ? Number(searchParams.get("minPrice")) : null,
-      maxPrice: searchParams.get("maxPrice") ? Number(searchParams.get("maxPrice")) : null,
+      sortOrder: searchParams.get("sortOrder") as "price-asc" | "price-desc" | "year" | null || null,
     });
   }, [searchParams]);
 
   useEffect(() => {
-    saveFilters({ search, category, minPrice, maxPrice });
-  }, [search, category, minPrice, maxPrice, saveFilters]);
+    saveFilters({ search, category, sortOrder });
+  }, [search, category, sortOrder, saveFilters]);
 
   useEffect(() => {
     const updateUrl = () => {
-      const { search, category, minPrice, maxPrice } = useFiltersStore.getState();
+      const { search, category, sortOrder } = useGalleryStore.getState();
       const params = new URLSearchParams();
 
       if (search) params.set("search", search);
       if (category !== "all") params.set("category", category);
-      if (minPrice !== null) params.set("minPrice", String(minPrice));
-      if (maxPrice !== null) params.set("maxPrice", String(maxPrice));
+      if (sortOrder) params.set("sortOrder", sortOrder);
 
       window.history.replaceState({}, "", `?${params.toString()}`);
     };
 
-    const unsubscribe = useFiltersStore.subscribe(updateUrl);
+    const unsubscribe = useGalleryStore.subscribe(updateUrl);
     return unsubscribe;
   }, []);
 };

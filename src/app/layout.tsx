@@ -1,5 +1,4 @@
 import { Header } from "@/components/header";
-import { Sidebar } from "@/components/sidebar";
 import { TanstackQueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";

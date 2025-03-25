@@ -1,26 +1,33 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
 
-interface ProductProps {
-  product: { id: number; title: string; price: number; image: string; description: string };
+import { Artwork } from "@/types/gallery";
+import { useEffect, useRef, useState } from "react";
+
+interface ArtCardProps {
+  artwork: Omit<Artwork, "category"> & { price: string };
 }
 
-export const ProductCard = ({ product }: ProductProps) => {
+export const ArtCard = ({ artwork }: ArtCardProps) => {
   return (
-    <Card className="shadow-md hover:shadow-lg transition p-2">
-      <CardHeader className="p-0">
-        <img src={product.image} alt={product.title} className="w-full h-64 object-cover rounded-t-md" />
-      </CardHeader>
-      <CardContent className="p-4">
-        <CardTitle className="text-lg">{product.title}</CardTitle>
-        <p className="text-gray-600 text-sm">${product.price}</p>
-        <p className="text-gray-500 text-sm mt-2 overflow-hidden text-ellipsis" style={{ 
-          whiteSpace: 'nowrap', 
-          textOverflow: 'ellipsis', 
-          maxWidth: '100%' 
-        }}>
-          {product.description.length > 50 ? `${product.description.slice(0, 50)}...` : product.description}
-        </p>
-      </CardContent>
-    </Card>
+    <div className="w-[300px] mx-auto text-left">
+      {/* Изображение */}
+      <div className="mb-3">
+      <img
+        src={artwork.imageUrl}
+        alt={`${artwork.title} by ${artwork.artist}`}
+        className="w-full max-h-screen h-auto object-contain"
+        loading="lazy"
+      />
+      </div>
+
+      {/* Текстовый блок */}
+      <div className="max-w-full space-y-1">
+        <p className="font-medium text-base">{artwork.artist}</p>
+        <p className="text-sm italic">{artwork.title}, {artwork.year}</p>
+        <p className="text-sm text-gray-600">{artwork.gallery}</p>
+        <p className="font-medium text-base mt-1">{artwork.price}</p>
+      </div>
+    </div>
   );
 };
+

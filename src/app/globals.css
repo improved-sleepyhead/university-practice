@@ -69,6 +69,37 @@ body,
     --chart-5: 340 75% 55%;
   }
 }
+.masonry {
+  column-count: 1;
+  column-gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .masonry {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .masonry {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry {
+    column-count: 4;
+  }
+}
+
+.masonry-item {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
+  break-inside: avoid;
+}
+
+
 html {
   scrollbar-width: none; /* Для Firefox */
   -ms-overflow-style: none; /* Для IE и Edge */

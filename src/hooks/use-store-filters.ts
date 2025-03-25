@@ -1,25 +1,28 @@
+// hooks/use-gallery-store.ts
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-interface FiltersState {
+interface GalleryFiltersState {
   search: string;
-  category: string;
-  minPrice: number | null;
-  maxPrice: number | null;
-  sortOrder: "asc" | "desc" | null; // Новое поле для сортировки
-  setFilters: (filters: Partial<FiltersState>) => void;
+  category: string; // 'all', 'painting', 'sculpture', 'photography'
+  sortOrder: "price-asc" | "price-desc" | "year" | null;
+  likedItems: number[]; // Для избранного
+  setFilters: (filters: Partial<GalleryFiltersState>) => void;
+  toggleLike: (id: number) => void;
 }
 
-export const useFiltersStore = create<FiltersState>()(
+export const useGalleryStore = create<GalleryFiltersState>()(
   immer((set) => ({
     search: "",
     category: "all",
-    minPrice: null,
-    maxPrice: null,
-    sortOrder: null, // По умолчанию сортировка отключена
-    setFilters: (filters) =>
+    sortOrder: null,
+    likedItems: [],
+    setFilters: (filters) => set((state) => Object.assign(state, filters)),
+    toggleLike: (id) =>
       set((state) => {
-        Object.assign(state, filters);
+        state.likedItems.includes(id)
+          ? (state.likedItems = state.likedItems.filter(item => item !== id))
+          : state.likedItems.push(id);
       }),
   }))
 );

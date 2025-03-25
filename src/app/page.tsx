@@ -1,71 +1,141 @@
 "use client";
 
-import { fetchProducts } from "@/api/store.service";
-import { ProductCard } from "@/components/item-card";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { fetchArtworks } from "@/api/store.service";
+import { ArtCard } from "@/components/item-card";
+import { useGalleryStore } from "@/hooks/use-store-filters";
+import { useGalleryFiltersWithUrl } from "@/hooks/use-url";
+
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { useDebouncedFilters } from "@/hooks/use-debounce";
-import { useFiltersStore } from "@/hooks/use-store-filters";
-import { useFiltersWithUrl } from "@/hooks/use-url";
-import { useQuery } from "@tanstack/react-query";
 
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  description: string;
-  category: string;
-  image: string;
-  rating: {
-    rate: number;
-    count: number;
-  };
-}
+export default function GalleryPage() {
+  useGalleryFiltersWithUrl();
+  useDebouncedFilters(); 
+  const { search, category, sortOrder } = useGalleryStore();
+  const [columnCount, setColumnCount] = useState(1); // Начальное значение 1 для SSR
 
-export default function Page() {
-  useFiltersWithUrl();
-  useDebouncedFilters();
+  // Определяем количество колонок после монтирования компонента
+  useEffect(() => {
+    const updateColumnCount = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) setColumnCount(4);
+      else if (width >= 768) setColumnCount(3);
+      else if (width >= 640) setColumnCount(2);
+      else setColumnCount(1);
+    };
 
-  const filters = useFiltersStore((state) => state);
-  const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["products", filters.category], // Используем категорию как часть ключа
-    queryFn: () => fetchProducts(filters.category), // Запрашиваем продукты по категории
+    updateColumnCount();
+    window.addEventListener('resize', updateColumnCount);
+    return () => window.removeEventListener('resize', updateColumnCount);
+  }, []);
+
+  const {
+    data,
+    error,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useInfiniteQuery({
+    queryKey: ["artworks", category, search, sortOrder],
+    queryFn: async ({ pageParam = 1 }) => {
+      const artworks = await fetchArtworks(category, pageParam);
+      return artworks.map(artwork => ({
+        ...artwork,
+        aspectRatio: Math.min(1.5, Math.max(0.8, Math.random() * 1.2 + 0.8))
+      }));
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length > 0 ? allPages.length + 1 : undefined,
+    staleTime: 60 * 1000,
   });
 
-  // Фильтрация по цене и поиску на фронтенде
-  const filteredProducts = products?.filter((product) => {
-    // Поиск по названию
-    const matchesSearch = product.title
-      .toLowerCase()
-      .includes(filters.search.toLowerCase());
-
-    // Фильтр по цене
-    const matchesPrice =
-      (filters.minPrice === null || product.price >= filters.minPrice) &&
-      (filters.maxPrice === null || product.price <= filters.maxPrice);
-
-    return matchesSearch && matchesPrice;
-  });
-
-  // Сортировка по цене
-  const sortedProducts = filteredProducts?.sort((a, b) => {
-    if (filters.sortOrder === "asc") {
-      return a.price - b.price;
-    } else if (filters.sortOrder === "desc") {
-      return b.price - a.price;
+  const loadMoreRef = useIntersectionObserver(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-    return 0; // Если сортировка отключена
+  });
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  const allArtworks = data?.pages.flat() || [];
+  const processedArtworks = [...allArtworks].sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+  // Группируем карточки по колонкам
+  const columns = Array.from({ length: columnCount }, () => [] as typeof processedArtworks);
+  processedArtworks.forEach((artwork, index) => {
+    columns[index % columnCount].push(artwork);
   });
 
   return (
-    <div>
-      {isLoading ? (
-        <p className="text-center text-lg">Загрузка...</p>
-      ) : (
-        <div className="grid grid-cols-4 gap-4">
-          {sortedProducts?.map((product: Product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
+    <div className="px-4 py-8">
+      <div className="flex gap-4">
+        {columns.map((column, columnIndex) => (
+          <div key={columnIndex} className="flex-1">
+            {column.map((artwork, index) => (
+              <motion.div 
+                key={artwork.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.05 }}
+                className="mb-4"
+              >
+                <ArtCard 
+                  artwork={{
+                    ...artwork,
+                    price: formatPrice(artwork.price)
+                  }}
+                />
+              </motion.div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div ref={loadMoreRef} className="h-10 flex justify-center items-center">
+        {isFetchingNextPage && (
+          <div className="animate-pulse">Loading more artworks...</div>
+        )}
+        {!hasNextPage && processedArtworks.length > 0 && (
+          <div className="text-gray-500">No more artworks to load</div>
+        )}
+      </div>
     </div>
   );
+}
+
+// Хук для инфинит-скролла
+export function useIntersectionObserver(onIntersect: () => void) {
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastTriggeredTime = useRef(0);
+
+  return useCallback((el: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    if (el) {
+      observerRef.current = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const now = Date.now();
+          if (entry.isIntersecting && now - lastTriggeredTime.current > 500) {
+            lastTriggeredTime.current = now;
+            onIntersect();
+          }
+        });
+      }, {
+        rootMargin: '300px',
+      });
+      observerRef.current.observe(el);
+    }
+  }, [onIntersect]);
 }
