@@ -26,8 +26,33 @@ export default function Page() {
 
   const filters = useFiltersStore((state) => state);
   const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["products", filters],
-    queryFn: () => fetchProducts(filters),
+    queryKey: ["products", filters.category], // Используем категорию как часть ключа
+    queryFn: () => fetchProducts(filters.category), // Запрашиваем продукты по категории
+  });
+
+  // Фильтрация по цене и поиску на фронтенде
+  const filteredProducts = products?.filter((product) => {
+    // Поиск по названию
+    const matchesSearch = product.title
+      .toLowerCase()
+      .includes(filters.search.toLowerCase());
+
+    // Фильтр по цене
+    const matchesPrice =
+      (filters.minPrice === null || product.price >= filters.minPrice) &&
+      (filters.maxPrice === null || product.price <= filters.maxPrice);
+
+    return matchesSearch && matchesPrice;
+  });
+
+  // Сортировка по цене
+  const sortedProducts = filteredProducts?.sort((a, b) => {
+    if (filters.sortOrder === "asc") {
+      return a.price - b.price;
+    } else if (filters.sortOrder === "desc") {
+      return b.price - a.price;
+    }
+    return 0; // Если сортировка отключена
   });
 
   return (
@@ -36,7 +61,7 @@ export default function Page() {
         <p className="text-center text-lg">Загрузка...</p>
       ) : (
         <div className="grid grid-cols-4 gap-4">
-          {products?.map((product: Product) => (
+          {sortedProducts?.map((product: Product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

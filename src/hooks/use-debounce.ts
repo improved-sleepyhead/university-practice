@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import debounce from 'lodash.debounce';
+import debounce from "lodash.debounce";
 import { useFiltersStore } from "./use-store-filters";
 
 export const useDebouncedFilters = () => {

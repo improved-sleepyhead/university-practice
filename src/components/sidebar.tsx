@@ -8,7 +8,7 @@ import { useFiltersStore } from "@/hooks/use-store-filters";
 const categories = ["all", "electronics", "jewelery", "men's clothing", "women's clothing"];
 
 export const Sidebar = () => {
-  const { setFilters, minPrice, maxPrice } = useFiltersStore();
+  const { setFilters, minPrice, maxPrice, sortOrder } = useFiltersStore();
 
   return (
     <aside className="w-64 p-4 bg-gray-100 border-r">
@@ -48,7 +48,24 @@ export const Sidebar = () => {
         />
       </div>
 
-      <Button variant="outline" onClick={() => setFilters({ search: "", category: "all", minPrice: null, maxPrice: null })}>
+      <div className="mb-4">
+        <h3 className="font-semibold">Сортировка по цене</h3>
+        <Button
+          variant={sortOrder === "asc" ? "default" : "outline"}
+          onClick={() => setFilters({ sortOrder: "asc" })}
+          className="mr-2"
+        >
+          По возрастанию
+        </Button>
+        <Button
+          variant={sortOrder === "desc" ? "default" : "outline"}
+          onClick={() => setFilters({ sortOrder: "desc" })}
+        >
+          По убыванию
+        </Button>
+      </div>
+
+      <Button variant="outline" onClick={() => setFilters({ search: "", category: "all", minPrice: null, maxPrice: null, sortOrder: null })}>
         Сбросить фильтры
       </Button>
     </aside>
