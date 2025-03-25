@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/sidebar";
 import { TanstackQueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { Footer } from "@/components/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,10 +18,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             >
           <div className="flex flex-col h-screen">
             <Header />
-            <div className="flex flex-1">
-              <Sidebar />
-              <main className="flex-1 p-4">{children}</main>
-            </div>
+            <main className="flex-1 p-4 pt-52">
+              {children}
+            </main>
+            <Footer/>
           </div>
           </ThemeProvider>
         </TanstackQueryProvider>

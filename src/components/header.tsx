@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export const Header = () => {
   const scrolled = useScrollTop();
   return (
-    <div className={cn("z-50 bg-background p-12 flex justify-center items-center flex-col fixed w-full",
+    <div className={cn("z-50 bg-background p-8 flex justify-center items-center flex-col fixed w-full",
       scrolled && "border-b shadow-sm")}>
       <div className="flex justify-center gap-x-6 mb-14">
         <Button variant="link" size="header">Featured</Button>

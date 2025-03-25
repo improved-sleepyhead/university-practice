@@ -69,14 +69,11 @@ body,
     --chart-5: 340 75% 55%;
   }
 }
+html {
+  scrollbar-width: none; /* Для Firefox */
+  -ms-overflow-style: none; /* Для IE и Edge */
+}
 
-
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+html::-webkit-scrollbar {
+  display: none; /* Для Chrome, Safari и Opera */
 }

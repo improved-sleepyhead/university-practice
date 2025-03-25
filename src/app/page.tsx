@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchProducts } from "@/api/store.service";
-import { ProductCard } from "@/components/product-card";
+import { ProductCard } from "@/components/item-card";
 import { useDebouncedFilters } from "@/hooks/use-debounce";
 import { useFiltersStore } from "@/hooks/use-store-filters";
 import { useFiltersWithUrl } from "@/hooks/use-url";
