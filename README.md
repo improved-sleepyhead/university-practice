@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Запуск проекта
+Перед первым запуском необходимо установить зависимости:
 
-## Getting Started
+bash
+Copy
+npm install
+# или
+yarn install
+# или
+pnpm install
+# или
+bun install
+После установки зависимостей запустите development-сервер:
 
-First, run the development server:
-
-```bash
+bash
+Copy
 npm run dev
-# or
+# или
 yarn dev
-# or
+# или
 pnpm dev
-# or
+# или
 bun dev
-```
+Откройте http://localhost:3000 в браузере, чтобы увидеть результат.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Редактирование страниц
+Основная страница находится в файле app/page.tsx. При сохранении изменений страница автоматически обновляется.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Особенности проекта
+Используется next/font для автоматической оптимизации и загрузки шрифта Geist (новый шрифт от Vercel)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Поддерживаются все основные менеджеры пакетов (npm, yarn, pnpm, bun)
 
-## Learn More
+Дополнительная информация
+Чтобы узнать больше о Next.js, изучите следующие ресурсы:
 
-To learn more about Next.js, take a look at the following resources:
+Документация Next.js - информация о возможностях и API
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Изучение Next.js - интерактивный учебник
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Репозиторий Next.js на GitHub - принимаются pull requests и bug reports
 
-## Deploy on Vercel
+Деплой
+Самый простой способ задеплоить Next.js приложение - использовать Vercel Platform от создателей Next.js.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Подробнее о деплое Next.js приложений можно узнать в документации по деплою.
