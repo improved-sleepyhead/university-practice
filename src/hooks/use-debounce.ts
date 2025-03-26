@@ -1,16 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import debounce from "lodash.debounce";
 import { useGalleryStore } from "./use-store-filters";
 
-
 export const useDebouncedFilters = () => {
-  const filters = useGalleryStore((state) => state);
+  const { search, category, artCategory, sortOrder } = useGalleryStore();
 
-  const updateFilters = debounce(() => {
-    console.log("Фильтры обновлены:", filters);
-  }, 300);
+  const updateFilters = useMemo(
+    () => debounce(() => {
+      console.log("Фильтры обновлены:", { search, category, artCategory, sortOrder });
+    }, 300),
+    [search]
+  );
 
   useEffect(() => {
     updateFilters();
-  }, [filters]);
+
+    return () => updateFilters.cancel();
+  }, [search]);
 };

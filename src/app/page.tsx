@@ -11,8 +11,8 @@ import { useDebouncedFilters } from "@/hooks/use-debounce";
 
 export default function GalleryPage() {
   useGalleryFiltersWithUrl();
-  useDebouncedFilters(); 
-  const { search, category, sortOrder } = useGalleryStore();
+  useDebouncedFilters();
+  const { search, category, artCategory, sortOrder } = useGalleryStore();
   const [columnCount, setColumnCount] = useState(1);
 
   useEffect(() => {
@@ -25,8 +25,8 @@ export default function GalleryPage() {
     };
 
     updateColumnCount();
-    window.addEventListener('resize', updateColumnCount);
-    return () => window.removeEventListener('resize', updateColumnCount);
+    window.addEventListener("resize", updateColumnCount);
+    return () => window.removeEventListener("resize", updateColumnCount);
   }, []);
 
   const {
@@ -35,20 +35,27 @@ export default function GalleryPage() {
     isLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["artworks", category, search, sortOrder],
+    queryKey: ["artworks", category, artCategory, search, sortOrder],
     queryFn: async ({ pageParam = 1 }) => {
-      const artworks = await fetchArtworks(category, pageParam);
-      return artworks.map(artwork => ({
-        ...artwork,
-        aspectRatio: Math.min(1.5, Math.max(0.8, Math.random() * 1.2 + 0.8))
-      }));
+      return fetchArtworks(category, artCategory, search, sortOrder, pageParam);
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.length > 0 ? allPages.length + 1 : undefined,
     staleTime: 60 * 1000,
+  });
+
+  
+  const allArtworks = data?.pages.flat() || [];
+
+ 
+  const uniqueArtworks = Array.from(new Map(allArtworks.map(item => [item.id, item])).values());
+
+  const columns = Array.from({ length: columnCount }, () => [] as typeof uniqueArtworks);
+  uniqueArtworks.forEach((artwork, index) => {
+    columns[index % columnCount].push(artwork);
   });
 
   const loadMoreRef = useIntersectionObserver(() => {
@@ -58,48 +65,40 @@ export default function GalleryPage() {
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
     }).format(price);
   };
-
-  const allArtworks = data?.pages.flat() || [];
-  const processedArtworks = [...allArtworks].sort((a, b) => parseInt(a.id) - parseInt(b.id));
-
-  const columns = Array.from({ length: columnCount }, () => [] as typeof processedArtworks);
-  processedArtworks.forEach((artwork, index) => {
-    columns[index % columnCount].push(artwork);
-  });
 
   return (
     <div className="px-4 py-8">
       <div className="flex gap-4">
         {columns.map((column, columnIndex) => (
           <div key={columnIndex} className="flex-1">
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {column.map((artwork, index) => (
-                <motion.div 
+                <motion.div
                   key={artwork.id}
+                  layout
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  transition={{ 
-                    duration: 1.2,
-                    delay: index * 0.15,
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.05,
                     type: "spring",
                     stiffness: 80,
                     damping: 12,
-                    mass: 0.5
+                    mass: 0.5,
                   }}
-                  layout
                   className="mb-4"
                 >
-                  <ArtCard 
+                  <ArtCard
                     artwork={{
                       ...artwork,
-                      price: formatPrice(artwork.price)
+                      price: formatPrice(artwork.price),
                     }}
                   />
                 </motion.div>
@@ -111,7 +110,7 @@ export default function GalleryPage() {
 
       <div ref={loadMoreRef} className="h-10 flex justify-center items-center">
         {isFetchingNextPage && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
@@ -120,7 +119,7 @@ export default function GalleryPage() {
             Loading more artworks...
           </motion.div>
         )}
-        {!hasNextPage && processedArtworks.length > 0 && (
+        {!hasNextPage && uniqueArtworks.length > 0 && (
           <div className="text-gray-500">No more artworks to load</div>
         )}
       </div>
@@ -128,7 +127,7 @@ export default function GalleryPage() {
   );
 }
 
-// Хук для инфинит-скролла остается без изменений
+
 export function useIntersectionObserver(onIntersect: () => void) {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const lastTriggeredTime = useRef(0);
@@ -139,17 +138,21 @@ export function useIntersectionObserver(onIntersect: () => void) {
     }
 
     if (el) {
-      observerRef.current = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const now = Date.now();
-          if (entry.isIntersecting && now - lastTriggeredTime.current > 500) {
-            lastTriggeredTime.current = now;
-            onIntersect();
-          }
-        });
-      }, {
-        rootMargin: '300px',
-      });
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const now = Date.now();
+            if (entry.isIntersecting && now - lastTriggeredTime.current > 500) {
+              lastTriggeredTime.current = now;
+              onIntersect();
+            }
+          });
+        },
+        {
+          rootMargin: "400px",
+          threshold: 0.1,
+        }
+      );
       observerRef.current.observe(el);
     }
   }, [onIntersect]);

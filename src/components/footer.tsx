@@ -8,16 +8,45 @@ import { Button } from "@/components/ui/button";
 import { useGalleryStore } from "@/hooks/use-store-filters";
 
 export const Footer = () => {
-  const { collections, users, categories, isLoading, setFilters } = useGalleryStore();
+  const {
+    collections,
+    users,
+    categories,
+    isLoading,
+    setFilters,
+    resetFilters,
+    search,
+    category,
+    artCategory,
+  } = useGalleryStore();
+
   const [open, setOpen] = useState(false);
 
-  const renderFilterButtons = (items: string[], filterKey: "search" | "category") => (
-    <div className="flex flex-wrap gap-2 p-2">
-      {items.map((item) => (
-        <Button key={item} variant="link" onClick={() => setFilters({ [filterKey]: item })}>
-          {item}
-        </Button>
-      ))}
+  const renderFilterButtons = (items: string[], filterKey: "search" | "category" | "artCategory") => (
+    <div className="flex flex-col space-y-2 p-2">
+      {items.map((item) => {
+        const isActive =
+          filterKey === "search" ? search === item :
+          filterKey === "category" ? category === item :
+          artCategory === item;
+
+        return (
+          <Button
+            key={item}
+            variant="ghost"
+            className={`relative flex items-center justify-between px-4 py-2 rounded-full transition-all
+              ${isActive ? "bg-black text-white" : "bg-transparent text-black dark:text-white"}`}
+            onClick={() => setFilters({ [filterKey]: isActive ? "" : item })}
+          >
+            {item}
+            {isActive && (
+              <div className="ml-2 w-5 h-5 flex items-center justify-center text-white rounded-full">
+                +
+              </div>
+            )}
+          </Button>
+        );
+      })}
     </div>
   );
 
@@ -61,11 +90,23 @@ export const Footer = () => {
               {categories.length > 0 && (
                 <AccordionItem value="categories">
                   <AccordionTrigger>Categories</AccordionTrigger>
-                  <AccordionContent>{renderFilterButtons(categories, "category")}</AccordionContent>
+                  <AccordionContent>{renderFilterButtons(categories, "artCategory")}</AccordionContent>
                 </AccordionItem>
               )}
             </Accordion>
           )}
+
+          <div className="mt-4 flex justify-center">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                resetFilters();
+                setOpen(false);
+              }}
+            >
+              Reset Filters
+            </Button>
+          </div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

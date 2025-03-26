@@ -1,33 +1,32 @@
-// api/gallery.service.ts
-import { Artwork } from "@/types/gallery";
 import axios from "axios";
 
+const API_URL = "https://api.unsplash.com";
+const ACCESS_KEY = "VyEMJIbfEOfmGfrWXjHWqUJlG6vSTu0gN6EK6JK_OGM";
 
-const UNSPLASH_ACCESS_KEY = "VyEMJIbfEOfmGfrWXjHWqUJlG6vSTu0gN6EK6JK_OGM";
-const UNSPLASH_API_URL = "https://api.unsplash.com";
-
-// api/gallery.service.ts
 export const fetchArtworks = async (
   category: string = "all",
+  artCategory: string = "",
+  search: string = "",
+  sortOrder: "price-asc" | "price-desc" | "year" | null = null,
   page: number = 1
-): Promise<Artwork[]> => {
+) => {
   try {
-    const count = 8; // Фиксированное число картинок на страницу
-    const orientation = "portrait";
+    const query = [category !== "all" ? category : "art", artCategory, search]
+      .filter(Boolean)
+      .join(" ");
 
-    const { data } = await axios.get(`${UNSPLASH_API_URL}/search/photos`, {
+    const { data } = await axios.get(`${API_URL}/search/photos`, {
       params: {
-        query: category === "all" ? "art" : category,
-        per_page: count,
+        query,
+        per_page: 10,
         page,
-        orientation,
-        client_id: UNSPLASH_ACCESS_KEY,
+        client_id: ACCESS_KEY,
       },
       timeout: 5000,
     });
 
-    return data.results.map((photo: any): Artwork => ({
-      id: photo.id, // Теперь ID будет стабильным
+    return data.results.map((photo: any) => ({
+      id: photo.id,
       title: photo.alt_description || `Artwork ${photo.id}`,
       artist: photo.user.name || "Unknown Artist",
       year: new Date().getFullYear().toString(),
@@ -41,4 +40,3 @@ export const fetchArtworks = async (
     return [];
   }
 };
-

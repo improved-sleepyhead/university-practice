@@ -1,13 +1,13 @@
-"use client"; // Делаем хук клиентским
+"use client";
 
 import { useState, useEffect } from "react";
 
 export function useStorage<T>(key: string, initialValue: T, storage: "local" | "session" = "local") {
-  const isBrowser = typeof window !== "undefined"; // Проверяем, в браузере ли мы
+  const isBrowser = typeof window !== "undefined";
   const getStorage = () => (isBrowser ? (storage === "local" ? localStorage : sessionStorage) : null);
 
   const [value, setValue] = useState<T>(() => {
-    if (!isBrowser) return initialValue; // SSR-защита
+    if (!isBrowser) return initialValue;
 
     try {
       const storedValue = getStorage()?.getItem(key);

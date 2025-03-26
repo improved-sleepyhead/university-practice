@@ -1,26 +1,26 @@
 import axios from "axios";
 
 const API_URL = "https://api.unsplash.com";
-const ACCESS_KEY = "VyEMJIbfEOfmGfrWXjHWqUJlG6vSTu0gN6EK6JK_OGM";
+const ACCESS_KEY = "r0jhb9wjQbcF3hqcVbw0L7FzRRxVXXJxDIF_u3xFsac";
 
 export const fetchFilterData = async () => {
   try {
-    const [collectionsRes, usersRes, categoriesRes] = await Promise.all([
-      axios.get(`${API_URL}/search/collections`, {
-        params: { query: "art", per_page: 10, client_id: ACCESS_KEY },
-      }),
-      axios.get(`${API_URL}/search/users`, {
-        params: { query: "artist", per_page: 10, client_id: ACCESS_KEY },
-      }),
+    const [collectionsRes, usersRes, topicsRes] = await Promise.all([
       axios.get(`${API_URL}/collections`, {
         params: { per_page: 10, client_id: ACCESS_KEY },
+      }),
+      axios.get(`${API_URL}/search/users`, {
+        params: { query: "photographer", per_page: 10, client_id: ACCESS_KEY },
+      }),
+      axios.get(`${API_URL}/topics`, {
+        params: { per_page: 20, client_id: ACCESS_KEY },
       }),
     ]);
 
     return {
-      collections: collectionsRes.data.results.map((c: any) => c.title),
+      collections: collectionsRes.data.map((c: any) => c.title),
       users: usersRes.data.results.map((u: any) => u.username),
-      categories: categoriesRes.data.map((c: any) => c.title),
+      categories: topicsRes.data.map((t: any) => t.title),
     };
   } catch (error) {
     console.error("Error fetching filter data:", error);
