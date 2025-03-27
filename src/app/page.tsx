@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { fetchArtworks } from "@/api/store.service";
 import { ArtCard } from "@/components/item-card";
 import { useGalleryStore } from "@/hooks/use-store-filters";
@@ -19,10 +19,7 @@ export default function GalleryPage() {
   useEffect(() => {
     const updateColumnCount = () => {
       const width = window.innerWidth;
-      if (width >= 1024) setColumnCount(4);
-      else if (width >= 768) setColumnCount(3);
-      else if (width >= 640) setColumnCount(2);
-      else setColumnCount(1);
+      setColumnCount(width >= 1024 ? 4 : width >= 768 ? 3 : width >= 640 ? 2 : 1);
     };
 
     updateColumnCount();
@@ -48,18 +45,33 @@ export default function GalleryPage() {
     staleTime: 60 * 1000,
   });
 
-  
   const allArtworks = data?.pages.flat() || [];
+  const uniqueArtworks = useMemo(
+    () => Array.from(new Map(allArtworks.map(item => [item.id, item])).values()),
+    [allArtworks]
+  );
 
- 
-  const uniqueArtworks = Array.from(new Map(allArtworks.map(item => [item.id, item])).values());
+  const columns = useMemo(() => {
+    const newColumns = Array.from({ length: columnCount }, () => [] as typeof uniqueArtworks);
+    const columnHeights = new Array(columnCount).fill(0);
 
-  const columns = Array.from({ length: columnCount }, () => [] as typeof uniqueArtworks);
-  uniqueArtworks.forEach((artwork, index) => {
-    columns[index % columnCount].push(artwork);
+    uniqueArtworks.forEach(artwork => {
+      const shortestColumn = columnHeights.indexOf(Math.min(...columnHeights));
+      newColumns[shortestColumn].push(artwork);
+      columnHeights[shortestColumn] += 1;
+    });
+
+    return newColumns;
+  }, [uniqueArtworks, columnCount]);
+
+  const lastElementRef = useIntersectionObserver(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
   });
 
-  const loadMoreRef = useIntersectionObserver(() => {
+  // 🔥 Новый обработчик: если верхняя карточка выходит из вьюпорта, подгружаем новую
+  const firstElementRef = useIntersectionObserver(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
@@ -72,6 +84,15 @@ export default function GalleryPage() {
       maximumFractionDigits: 0,
     }).format(price);
   };
+
+  const loadMoreRef = useIntersectionObserver(
+    () => {
+      if (hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    { rootMargin: "200px" }
+  );
 
   return (
     <div className="px-4 py-8">
@@ -109,6 +130,7 @@ export default function GalleryPage() {
         ))}
       </div>
 
+      {/* Элемент для триггера загрузки */}
       <div ref={loadMoreRef} className="h-10 flex justify-center items-center">
         {isFetchingNextPage && (
           <motion.div
@@ -127,5 +149,3 @@ export default function GalleryPage() {
     </div>
   );
 }
-
-

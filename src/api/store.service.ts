@@ -30,11 +30,13 @@ export const fetchArtworks = async (
       title: photo.alt_description || `Artwork ${photo.id}`,
       artist: photo.user.name || "Unknown Artist",
       year: new Date().getFullYear().toString(),
-      imageUrl: `${photo.urls.regular}&w=600`,
+      imageUrl: `${photo.urls.regular}&w=500&q=80`,
+      previewUrl: photo.urls.thumb, // Маленькое изображение для предварительного просмотра
       gallery: "Unsplash Gallery",
       price: Math.floor(Math.random() * 5000) + 100,
       category,
     }));
+    
   } catch (error) {
     console.error("Error fetching artworks:", error);
     return [];
