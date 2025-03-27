@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Проект на Next.js
 
-## Getting Started
+Этот проект был создан с помощью [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-First, run the development server:
+## Как запустить проект
+
+### 1. Установка зависимостей
+
+Перед запуском необходимо установить все зависимости. Для этого выполните команду:
+
+```bash
+npm install
+# или
+yarn install
+# или
+pnpm install
+# или
+bun install
+```
+
+### 2. Запуск сервера разработки
+
+Запустите сервер разработки с помощью следующей команды:
 
 ```bash
 npm run dev
-# or
+# или
 yarn dev
-# or
+# или
 pnpm dev
-# or
+# или
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+После этого откройте [http://localhost:3000](http://localhost:3000) в браузере, чтобы увидеть результат.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Редактирование проекта
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Вы можете начать редактирование, изменяя файл `app/page.tsx`. Страница автоматически обновится при сохранении изменений.
 
-## Learn More
+## Используемые технологии
 
-To learn more about Next.js, take a look at the following resources:
+Этот проект использует [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) для автоматической оптимизации и загрузки шрифта [Geist](https://vercel.com/font), разработанного Vercel.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Дополнительная информация
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Чтобы узнать больше о Next.js, ознакомьтесь со следующими ресурсами:
 
-## Deploy on Vercel
+- [Документация Next.js](https://nextjs.org/docs) - подробное руководство по возможностям и API Next.js.
+- [Интерактивный курс Next.js](https://nextjs.org/learn) - обучение в формате практических упражнений.
+- [GitHub-репозиторий Next.js](https://github.com/vercel/next.js) - обратная связь и участие в разработке.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Деплой на Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Самый простой способ развернуть приложение Next.js — использовать платформу [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), созданную разработчиками Next.js.
+
+Подробнее о развертывании можно узнать в [документации по деплою Next.js](https://nextjs.org/docs/app/building-your-application/deploying).
+
