@@ -25,8 +25,8 @@ export function useIntersectionObserver(
             });
           },
           {
-            rootMargin: "300px 0px",
-            threshold: 0.1,
+            rootMargin: "100px", // Увеличьте rootMargin, чтобы активировать раньше
+            threshold: 0.1, // Порог пересечения
             ...options,
           }
         );

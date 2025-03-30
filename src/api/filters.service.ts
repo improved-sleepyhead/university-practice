@@ -1,19 +1,18 @@
 import axios from "axios";
 
 const API_URL = "https://api.unsplash.com";
-const ACCESS_KEY = "r0jhb9wjQbcF3hqcVbw0L7FzRRxVXXJxDIF_u3xFsac";
 
 export const fetchFilterData = async () => {
   try {
     const [collectionsRes, usersRes, topicsRes] = await Promise.all([
       axios.get(`${API_URL}/collections`, {
-        params: { per_page: 10, client_id: ACCESS_KEY },
+        params: { per_page: 10, client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY},
       }),
       axios.get(`${API_URL}/search/users`, {
-        params: { query: "photographer", per_page: 10, client_id: ACCESS_KEY },
+        params: { query: "photographer", per_page: 10, client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY},
       }),
       axios.get(`${API_URL}/topics`, {
-        params: { per_page: 20, client_id: ACCESS_KEY },
+        params: { per_page: 20, client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY},
       }),
     ]);
 

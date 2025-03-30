@@ -5,6 +5,6 @@ export interface Artwork {
   year: string;
   imageUrl: string;
   gallery: string;
-  price: number; // 🔥 Исправлено, теперь это `number`
+  price: number;
   category: string;
 }

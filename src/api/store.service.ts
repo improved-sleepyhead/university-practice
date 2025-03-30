@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const API_URL = "https://api.unsplash.com";
-const ACCESS_KEY = "VyEMJIbfEOfmGfrWXjHWqUJlG6vSTu0gN6EK6JK_OGM";
 
 export const fetchArtworks = async (
   category: string = "all",
@@ -14,13 +13,19 @@ export const fetchArtworks = async (
     const query = [category !== "all" ? category : "art", artCategory, search]
       .filter(Boolean)
       .join(" ");
-
+      console.log("Fetching artworks with params:", {
+        category,
+        artCategory,
+        search,
+        sortOrder,
+        page,
+      });
     const { data } = await axios.get(`${API_URL}/search/photos`, {
       params: {
         query,
-        per_page: 10,
+        per_page: 2,
         page,
-        client_id: ACCESS_KEY,
+        client_id: process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY,
       },
       timeout: 5000,
     });
@@ -31,7 +36,7 @@ export const fetchArtworks = async (
       artist: photo.user.name || "Unknown Artist",
       year: new Date().getFullYear().toString(),
       imageUrl: `${photo.urls.regular}&w=500&q=80`,
-      previewUrl: photo.urls.thumb, // Маленькое изображение для предварительного просмотра
+      previewUrl: photo.urls.thumb,
       gallery: "Unsplash Gallery",
       price: Math.floor(Math.random() * 5000) + 100,
       category,
